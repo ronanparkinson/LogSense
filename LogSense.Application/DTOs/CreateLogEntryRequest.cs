@@ -10,14 +10,15 @@ namespace LogSense.Application.DTOs
     public class CreateLogEntryRequest
     {
         [Required]
+        [StringLength(20)]
         public string Level { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(10)]
+        [StringLength(8000)]
         public string Message { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(20)]
+        [StringLength(200)]
         public string Source { get; set; } = string.Empty;
 
         public string? Exception { get; set; }
