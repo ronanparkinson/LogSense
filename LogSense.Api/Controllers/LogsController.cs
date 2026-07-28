@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using LogSense.Infrastructure.Persistence;
 using LogSense.Domain.Entities;
+using LogSense.Application.Interfaces;
 
 namespace LogSense.Api.Controllers
 {
@@ -12,27 +13,17 @@ namespace LogSense.Api.Controllers
 
     public class LogsController : ControllerBase
     {
-        private readonly LogSenseDbContext _context;
+        private readonly ILogService _logService;
 
-        public LogsController(LogSenseDbContext context)
+        public LogsController(ILogService logService)
         {
-            _context = context;
+            _logService = logService;
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(CreateLogEntryRequest request)
         {
-            var logEntry = new LogEntry
-            {
-                Level = request.Level,
-                Message = request.Message,
-                Source = request.Source,
-                Exception = request.Exception,
-                Timestamp =  DateTime.UtcNow
-            };
-
-            _context.LogEntries.Add(logEntry);
-            await _context.SaveChangesAsync();
+            await _logService.CreateLogAsync(request);
 
             return Created();
         }
