@@ -2,6 +2,7 @@
 using LogSense.Application.Interfaces;
 using LogSense.Domain.Entities;
 using LogSense.Infrastructure.Repositories.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,14 +14,22 @@ namespace LogSense.Application.Services
     public class LogService : ILogService
     {
         private readonly ILogRepository _logRepository;
+        private readonly ILogger<LogService> _logger;
 
-        public LogService(ILogRepository logRepository)
+        public LogService(ILogRepository logRepository, ILogger<LogService> logger)
         {
             _logRepository = logRepository;
+            _logger = logger;
         }
 
         public async Task CreateLogAsync(CreateLogEntryRequest createLogEntryRequest)
         {
+
+            _logger.LogInformation(
+                "Creating log entry from source {Source} with level {Level}",
+                createLogEntryRequest.Source,
+                createLogEntryRequest.Level);
+
             LogEntry logEntry = new LogEntry
             {
                 Level = createLogEntryRequest.Level,
