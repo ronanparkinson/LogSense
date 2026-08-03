@@ -24,7 +24,6 @@ namespace LogSense.Application.Services
 
         public async Task CreateLogAsync(CreateLogEntryRequest createLogEntryRequest)
         {
-
             _logger.LogInformation(
                 "Creating log entry from source {Source} with level {Level}",
                 createLogEntryRequest.Source,
@@ -40,6 +39,11 @@ namespace LogSense.Application.Services
             };
 
             await _logRepository.AddLogEntryAsync(logEntry);
+
+            _logger.LogInformation(
+                "Log entry {LogEntryId} created successfully from source {Source}",
+                logEntry.Id,
+                logEntry.Source);
         }
     }
 }
