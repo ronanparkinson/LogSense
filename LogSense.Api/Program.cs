@@ -32,6 +32,8 @@ builder.Services.AddScoped<ILogRepository, LogRepository>();
 
 var app = builder.Build();
 
+app.UseSerilogRequestLogging();
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
