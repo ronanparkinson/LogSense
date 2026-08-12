@@ -46,44 +46,10 @@ namespace LogSense.Application.Services
                 logEntry.Source);
         }
 
-        public async Task<List<LogEntryResponse>> GetAllLogsAsync()
+        public async Task<List<LogEntryResponse>> QueryLogsAsync(LogQueryParameters parameters)
         {
             List<LogEntry> logEntries =
-                await _logRepository.GetAllLogEntriesAsync();
-
-            return logEntries.Select(logEntry => new LogEntryResponse
-            {
-                Id = logEntry.Id,
-                Timestamp = logEntry.Timestamp,
-                Level = logEntry.Level,
-                Message = logEntry.Message,
-                Source = logEntry.Source,
-                CorrelationId = logEntry.CorrelationId,
-                Exception = logEntry.Exception
-            }).ToList();
-        }
-
-        public async Task<List<LogEntryResponse>> GetLogEntriesByLevelAsync(string level)
-        {
-            List<LogEntry> logEntries =
-                await _logRepository.GetLogEntriesByLevelAsync(level);
-
-            return logEntries.Select(logEntry => new LogEntryResponse
-            {
-                Id = logEntry.Id,
-                Timestamp = logEntry.Timestamp,
-                Level = logEntry.Level,
-                Message = logEntry.Message,
-                Source = logEntry.Source,
-                CorrelationId = logEntry.CorrelationId,
-                Exception = logEntry.Exception
-            }).ToList();
-        }
-
-        public async Task<List<LogEntryResponse>> GetLogEntriesBySourceAsync(string source)
-        {
-            List<LogEntry> logEntries =
-                await _logRepository.GetLogEntriesBySourceAsync(source);
+                await _logRepository.QueryLogEntriesAsync(parameters);
 
             return logEntries.Select(logEntry => new LogEntryResponse
             {

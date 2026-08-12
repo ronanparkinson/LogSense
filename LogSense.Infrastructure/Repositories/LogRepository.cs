@@ -1,4 +1,5 @@
-﻿using LogSense.Domain.Entities;
+﻿using LogSense.Application.DTOs;
+using LogSense.Domain.Entities;
 using LogSense.Infrastructure.Persistence;
 using LogSense.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -25,21 +26,42 @@ namespace LogSense.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<LogEntry>> GetAllLogEntriesAsync()
+        public async Task<List<LogEntry>> QueryLogEntriesAsync(LogQueryParameters parameters)
         {
-            return await _context.LogEntries.ToListAsync();
-        }
+            IQueryable<LogEntry> query = _context.LogEntries;
 
-        public async Task<List<LogEntry>> GetLogEntriesByLevelAsync(string level)
-        {
-            return await _context.LogEntries.Where(LogEntry => LogEntry.Level == level).ToListAsync();
-        }
+            if (!string.IsNullOrWhiteSpace(parameters.Level))
+            {
+                query = query.Where(logEntry =>
+                    logEntry.Level == parameters.Level);
+            }
 
-        public async Task<List<LogEntry>> GetLogEntriesBySourceAsync(string source)
-        {
-            return await _context.LogEntries
-                .Where(logEntry => logEntry.Source == source)
-                .ToListAsync();
+            if (!string.IsNullOrWhiteSpace(parameters.Source))
+            {
+                query = query.Where(logEntry =>
+                    logEntry.Source == parameters.Source);
+            }
+
+            if (parameters.From.HasValue)
+            {
+                query = query.Where(logEntry =>
+                    logEntry.Timestamp >= parameters.From.Value);
+            }
+
+            if (parameters.To.HasValue)
+            {
+                query = query.Where(logEntry =>
+                    logEntry.Timestamp <= parameters.To.Value);
+            }
+
+            query = query.OrderByDescending(logEntry =>
+                logEntry.Timestamp);
+
+            query = query
+                .Skip((parameters.Page - 1) * parameters.PageSize)
+                .Take(parameters.PageSize);
+
+            return await query.ToListAsync();
         }
 
     }

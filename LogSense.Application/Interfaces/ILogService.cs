@@ -11,9 +11,6 @@ namespace LogSense.Application.Interfaces
     public interface ILogService
     {
         Task CreateLogAsync(CreateLogEntryRequest createLogEntryRequest);
-        Task <List<LogEntryResponse>> GetAllLogsAsync();
-        Task<List<LogEntryResponse>> GetLogEntriesByLevelAsync(string level);
-        Task<List<LogEntryResponse>> GetLogEntriesBySourceAsync(string source);
-
+        Task<List<LogEntryResponse>> QueryLogsAsync(LogQueryParameters parameters);
     }
 }

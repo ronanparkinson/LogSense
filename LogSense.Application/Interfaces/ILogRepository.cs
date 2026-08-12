@@ -1,4 +1,5 @@
-﻿using LogSense.Domain.Entities;
+﻿using LogSense.Application.DTOs;
+using LogSense.Domain.Entities;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -11,8 +12,6 @@ namespace LogSense.Infrastructure.Repositories.Interfaces
     public interface ILogRepository
     {
         Task AddLogEntryAsync(LogEntry logEntry);
-        Task<List<LogEntry>> GetAllLogEntriesAsync();
-        Task<List<LogEntry>> GetLogEntriesByLevelAsync(string level);
-        Task<List<LogEntry>> GetLogEntriesBySourceAsync(string source);
+        Task<List<LogEntry>> QueryLogEntriesAsync(LogQueryParameters parameters);
     }
 }

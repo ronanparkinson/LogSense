@@ -29,24 +29,11 @@ namespace LogSense.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<LogEntryResponse>>> GetAllLogEntries(
-           [FromQuery] string? level,
-           [FromQuery] string? source)
+        public async Task<ActionResult<List<LogEntryResponse>>> GetLogEntries(
+            [FromQuery] LogQueryParameters parameters)
         {
-            List<LogEntryResponse> logEntries;
-
-            if (!string.IsNullOrWhiteSpace(level))
-            {
-                logEntries = await _logService.GetLogEntriesByLevelAsync(level);
-            }
-            else if (!string.IsNullOrWhiteSpace(source))
-            {
-                logEntries = await _logService.GetLogEntriesBySourceAsync(source);
-            }
-            else
-            {
-                logEntries = await _logService.GetAllLogsAsync();
-            }
+            List<LogEntryResponse> logEntries =
+                await _logService.QueryLogsAsync(parameters);
 
             return Ok(logEntries);
         }
