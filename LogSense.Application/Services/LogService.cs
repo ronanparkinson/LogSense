@@ -79,5 +79,22 @@ namespace LogSense.Application.Services
                 Exception = logEntry.Exception
             }).ToList();
         }
+
+        public async Task<List<LogEntryResponse>> GetLogEntriesBySourceAsync(string source)
+        {
+            List<LogEntry> logEntries =
+                await _logRepository.GetLogEntriesBySourceAsync(source);
+
+            return logEntries.Select(logEntry => new LogEntryResponse
+            {
+                Id = logEntry.Id,
+                Timestamp = logEntry.Timestamp,
+                Level = logEntry.Level,
+                Message = logEntry.Message,
+                Source = logEntry.Source,
+                CorrelationId = logEntry.CorrelationId,
+                Exception = logEntry.Exception
+            }).ToList();
+        }
     }
 }

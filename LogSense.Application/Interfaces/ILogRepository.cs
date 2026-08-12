@@ -13,5 +13,6 @@ namespace LogSense.Infrastructure.Repositories.Interfaces
         Task AddLogEntryAsync(LogEntry logEntry);
         Task<List<LogEntry>> GetAllLogEntriesAsync();
         Task<List<LogEntry>> GetLogEntriesByLevelAsync(string level);
+        Task<List<LogEntry>> GetLogEntriesBySourceAsync(string source);
     }
 }

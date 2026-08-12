@@ -35,5 +35,12 @@ namespace LogSense.Infrastructure.Repositories
             return await _context.LogEntries.Where(LogEntry => LogEntry.Level == level).ToListAsync();
         }
 
+        public async Task<List<LogEntry>> GetLogEntriesBySourceAsync(string source)
+        {
+            return await _context.LogEntries
+                .Where(logEntry => logEntry.Source == source)
+                .ToListAsync();
+        }
+
     }
 }

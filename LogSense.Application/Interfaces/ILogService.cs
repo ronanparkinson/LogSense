@@ -13,5 +13,7 @@ namespace LogSense.Application.Interfaces
         Task CreateLogAsync(CreateLogEntryRequest createLogEntryRequest);
         Task <List<LogEntryResponse>> GetAllLogsAsync();
         Task<List<LogEntryResponse>> GetLogEntriesByLevelAsync(string level);
+        Task<List<LogEntryResponse>> GetLogEntriesBySourceAsync(string source);
+
     }
 }
