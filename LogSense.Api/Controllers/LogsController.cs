@@ -27,5 +27,15 @@ namespace LogSense.Api.Controllers
 
             return Created();
         }
+
+        [HttpGet]
+        public async Task<ActionResult<List<LogEntryResponse>>> GetLogEntries(
+            [FromQuery] LogQueryParameters parameters)
+        {
+            List<LogEntryResponse> logEntries =
+                await _logService.QueryLogsAsync(parameters);
+
+            return Ok(logEntries);
+        }
     }
 }
