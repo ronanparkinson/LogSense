@@ -6,6 +6,8 @@ using LogSense.Infrastructure.Repositories.Interfaces;
 using LogSense.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using OpenSearch.Client;
+using LogSense.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +31,21 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddScoped<ILogRepository, LogRepository>();
+
+var openSearchUri =
+    builder.Configuration["OpenSearch:Uri"];
+
+var defaultIndex =
+    builder.Configuration["OpenSearch:DefaultIndex"];
+
+var settings = new ConnectionSettings(new Uri(openSearchUri!))
+    .DefaultIndex(defaultIndex);
+
+var openSearchClient = new OpenSearchClient(settings);
+
+builder.Services.AddSingleton<IOpenSearchClient>(openSearchClient);
+
+builder.Services.AddScoped<IOpenSearchService, OpenSearchService>();
 
 var app = builder.Build();
 

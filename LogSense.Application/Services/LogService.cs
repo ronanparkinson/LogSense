@@ -15,11 +15,16 @@ namespace LogSense.Application.Services
     {
         private readonly ILogRepository _logRepository;
         private readonly ILogger<LogService> _logger;
+        private readonly IOpenSearchService _openSearchService;
 
-        public LogService(ILogRepository logRepository, ILogger<LogService> logger)
+        public LogService(
+            ILogRepository logRepository,
+            ILogger<LogService> logger,
+            IOpenSearchService openSearchService)
         {
             _logRepository = logRepository;
             _logger = logger;
+            _openSearchService = openSearchService;
         }
 
         public async Task CreateLogAsync(CreateLogEntryRequest createLogEntryRequest)
@@ -39,6 +44,7 @@ namespace LogSense.Application.Services
             };
 
             await _logRepository.AddLogEntryAsync(logEntry);
+            await _openSearchService.IndexLogEntryAsync(logEntry);
 
             _logger.LogInformation(
                 "Log entry {LogEntryId} created successfully from source {Source}",
@@ -60,6 +66,22 @@ namespace LogSense.Application.Services
                 Source = logEntry.Source,
                 CorrelationId = logEntry.CorrelationId,
                 Exception = logEntry.Exception
+            }).ToList();
+        }
+
+        public async Task<List<LogEntryResponse>> SearchLogsAsync(string query)
+        {
+            var logs = await _openSearchService.SearchLogsAsync(query);
+
+            return logs.Select(log => new LogEntryResponse
+            {
+                Id = log.Id,
+                Timestamp = log.Timestamp,
+                Level = log.Level,
+                Message = log.Message,
+                Source = log.Source,
+                CorrelationId = log.CorrelationId,
+                Exception = log.Exception
             }).ToList();
         }
     }
