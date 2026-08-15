@@ -33,17 +33,20 @@ namespace LogSense.Infrastructure.Services
         public async Task<List<LogEntry>> SearchLogsAsync(string query)
         {
             var response = await _openSearchClient.SearchAsync<LogEntry>(s => s
-                    .Query(q => q
-                        .MultiMatch(m => m
-                            .Query(query)
-                            .Fields(f => f
-                                .Field(x => x.Message)
-                                .Field(x => x.Exception)
-                                .Field(x => x.Source)
-                            )
+                .Query(q => q
+                    .MultiMatch(m => m
+                        .Query(query)
+                        .Fields(f => f
+                            .Field(x => x.Message)
+                            .Field(x => x.Exception)
+                            .Field(x => x.Source)
                         )
                     )
-                );
+                )
+                .Sort(sort => sort
+                    .Descending(x => x.Timestamp)
+                )
+            );
 
             if (!response.IsValid)
             {
