@@ -12,5 +12,6 @@ namespace LogSense.Application.Interfaces
     {
         Task CreateLogAsync(CreateLogEntryRequest createLogEntryRequest);
         Task<List<LogEntryResponse>> QueryLogsAsync(LogQueryParameters parameters);
+        Task<List<LogEntryResponse>> SearchLogsAsync(string query);
     }
 }

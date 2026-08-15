@@ -37,5 +37,18 @@ namespace LogSense.Api.Controllers
 
             return Ok(logEntries);
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchLogs([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest("Search query is required.");
+            }
+
+            var logs = await _logService.SearchLogsAsync(query);
+
+            return Ok(logs);
+        }
     }
 }

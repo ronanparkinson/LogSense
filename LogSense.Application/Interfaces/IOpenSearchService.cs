@@ -10,6 +10,6 @@ namespace LogSense.Application.Interfaces
     public interface IOpenSearchService
     {
         Task IndexLogEntryAsync(LogEntry logEntry);
-
+        Task<List<LogEntry>> SearchLogsAsync(string query);
     }
 }
