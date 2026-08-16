@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using LogSense.Infrastructure.Persistence;
 using LogSense.Domain.Entities;
 using LogSense.Application.Interfaces;
+using LogSense.Application.DTOs.AI;
+using LogSense.Infrastructure.Services;
 
 namespace LogSense.Api.Controllers
 {
@@ -14,10 +16,12 @@ namespace LogSense.Api.Controllers
     public class LogsController : ControllerBase
     {
         private readonly ILogService _logService;
+        private readonly ILogAnalysisService _logAnalysisService;
 
-        public LogsController(ILogService logService)
+        public LogsController(ILogService logService, ILogAnalysisService logAnalysisService)
         {
             _logService = logService;
+            _logAnalysisService = logAnalysisService;
         }
 
         [HttpPost]
@@ -49,6 +53,41 @@ namespace LogSense.Api.Controllers
             var logs = await _logService.SearchLogsAsync(query);
 
             return Ok(logs);
+        }
+
+        [HttpGet("analyse")]
+        public async Task<ActionResult<LogAnalysisResponse>> AnalyseLogs([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest("Query is required.");
+            }
+
+            List<LogEntryResponse> searchResults =
+                await _logService.SearchLogsAsync(query);
+
+            if (searchResults.Count == 0)
+            {
+                return NotFound("No matching logs found.");
+            }
+
+            List<LogEntry> logEntries = searchResults
+                .Select(log => new LogEntry
+                {
+                    Id = log.Id,
+                    Timestamp = log.Timestamp,
+                    Level = log.Level,
+                    Message = log.Message,
+                    Source = log.Source,
+                    CorrelationId = log.CorrelationId,
+                    Exception = log.Exception
+                })
+            .ToList();
+
+            LogAnalysisResponse analysis =
+                await _logAnalysisService.AnalyseLogsAsync(logEntries);
+
+            return Ok(analysis);
         }
     }
 }
