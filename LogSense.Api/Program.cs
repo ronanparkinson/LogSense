@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using OpenSearch.Client;
 using LogSense.Infrastructure.Services;
+using Microsoft.Extensions.AI;
+using OllamaSharp;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +48,20 @@ var openSearchClient = new OpenSearchClient(settings);
 builder.Services.AddSingleton<IOpenSearchClient>(openSearchClient);
 
 builder.Services.AddScoped<IOpenSearchService, OpenSearchService>();
+
+var ollamaEndpoint =
+    builder.Configuration["Ollama:Endpoint"];
+
+var ollamaModel =
+    builder.Configuration["Ollama:Model"];
+
+IChatClient chatClient = new OllamaApiClient(
+    new Uri(ollamaEndpoint!),
+    ollamaModel!);
+
+builder.Services.AddSingleton<IChatClient>(chatClient);
+
+builder.Services.AddScoped<ILogAnalysisService, LogAnalysisService>();
 
 var app = builder.Build();
 
