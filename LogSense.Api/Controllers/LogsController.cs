@@ -17,11 +17,13 @@ namespace LogSense.Api.Controllers
     {
         private readonly ILogService _logService;
         private readonly ILogAnalysisService _logAnalysisService;
+        private readonly ILogEmbeddingService _logEmbeddingService;
 
-        public LogsController(ILogService logService, ILogAnalysisService logAnalysisService)
+        public LogsController(ILogService logService, ILogAnalysisService logAnalysisService, ILogEmbeddingService logEmbeddingService)
         {
             _logService = logService;
             _logAnalysisService = logAnalysisService;
+            _logEmbeddingService = logEmbeddingService;
         }
 
         [HttpPost]
@@ -88,6 +90,21 @@ namespace LogSense.Api.Controllers
                 await _logAnalysisService.AnalyseLogsAsync(logEntries);
 
             return Ok(analysis);
+        }
+
+        [HttpGet("embedding-test")]
+        public async Task<IActionResult> TestEmbedding(
+    [FromQuery] string text)
+        {
+            float[] embedding =
+                await _logEmbeddingService.GenerateEmbeddingAsync(text);
+
+            return Ok(new
+            {
+                Text = text,
+                Dimensions = embedding.Length,
+                Preview = embedding.Take(10)
+            });
         }
     }
 }
