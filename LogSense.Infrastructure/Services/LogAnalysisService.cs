@@ -2,6 +2,7 @@
 using LogSense.Application.Interfaces;
 using LogSense.Domain.Entities;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,10 +14,13 @@ namespace LogSense.Infrastructure.Services
     public class LogAnalysisService : ILogAnalysisService
     {
         private readonly IChatClient _chatClient;
+        private readonly ILogger<LogAnalysisService> _logger;
 
-        public LogAnalysisService(IChatClient chatClient)
+
+        public LogAnalysisService(IChatClient chatClient, ILogger<LogAnalysisService> logger)
         {
             _chatClient = chatClient;
+            _logger = logger;
         }
 
         public async Task<LogAnalysisResponse> AnalyseLogsAsync(
@@ -51,10 +55,19 @@ namespace LogSense.Infrastructure.Services
                 {logs}
                 """;
 
-            var response =
-                await _chatClient.GetResponseAsync<LogAnalysisResponse>(prompt);
+            try
+            {
+                var response =
+                    await _chatClient.GetResponseAsync<LogAnalysisResponse>(prompt);
 
-            return response.Result;
+                return response.Result;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    "AI log analysis failed. Ensure the local Ollama service and configured model are available.",
+                    ex);
+            }
         }
     }
 }
