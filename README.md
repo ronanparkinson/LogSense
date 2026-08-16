@@ -1,6 +1,6 @@
 # LogSense
 
-> **AI-powered log management and observability platform built with ASP.NET Core, PostgreSQL, OpenSearch, Clean Architecture, and planned agentic AI capabilities.**
+> **AI-powered log management and observability platform built with ASP.NET Core, PostgreSQL, OpenSearch, Microsoft.Extensions.AI, locally hosted LLM inference with Ollama, Clean Architecture, and planned agentic AI capabilities.**
 
 ---
 
@@ -8,7 +8,7 @@
 
 LogSense is a personal AI/software engineering project focused on building a production-style log ingestion, search, and analysis platform.
 
-The current system provides a layered ASP.NET Core backend that persists structured logs to PostgreSQL and indexes them into OpenSearch for full-text operational search. The next stage of development adds AI-assisted log analysis, AI-driven workflows, agent-facing APIs/tools, and a React/TypeScript frontend.
+The current system provides a layered ASP.NET Core backend that persists structured logs to PostgreSQL, indexes them into OpenSearch for full-text operational search, and passes retrieved log context to a locally hosted LLM for structured AI-assisted incident analysis. The AI layer uses Microsoft.Extensions.AI and its `IChatClient` abstraction with Ollama as the local inference provider. Future stages add semantic retrieval/RAG, AI-driven workflows, agent-facing APIs/tools, and a React/TypeScript frontend.
 
 The project is intended to demonstrate practical backend engineering, search infrastructure, observability, AI integration, and agentic application design in one end-to-end system.
 
@@ -74,6 +74,22 @@ Incoming logs are persisted in PostgreSQL and indexed into OpenSearch. Query end
 - OpenSearch Dashboards
 - Separate PostgreSQL and search responsibilities
 
+### AI Log Analysis
+
+- Local LLM inference using Ollama
+- Microsoft.Extensions.AI `IChatClient` abstraction
+- OllamaSharp integration
+- Qwen3 1.7B as the fast local development model
+- Qwen3 4B available for higher-quality analysis/evaluation
+- OpenSearch-to-LLM analysis pipeline
+- Structured AI analysis responses
+- Incident summaries and likely root-cause suggestions
+- Severity assessment and affected-service identification
+- Recommended remediation actions
+- Bounded log context sent to the model
+- AI service failure handling and internal logging
+- No hosted AI API key or per-request cloud inference dependency
+
 ### Architecture
 
 - Clean Architecture
@@ -112,6 +128,16 @@ Incoming logs are persisted in PostgreSQL and indexed into OpenSearch. Query end
 - Docker
 - Docker Compose
 
+**AI**
+- Microsoft.Extensions.AI
+- `IChatClient`
+- Ollama (local inference)
+- OllamaSharp 5.4.30
+- Qwen3 1.7B (development)
+- Qwen3 4B (quality evaluation)
+- Structured LLM outputs
+- AI-assisted log and incident analysis
+
 **Architecture**
 - Clean Architecture
 - Repository Pattern
@@ -123,8 +149,6 @@ Incoming logs are persisted in PostgreSQL and indexed into OpenSearch. Query end
 ### Planned AI & Agentic Technologies
 
 - Microsoft Agent Framework / Microsoft agentic tooling
-- Microsoft.Extensions.AI where appropriate
-- LLM-powered log analysis
 - AI-driven operational workflows
 - Agent-facing APIs and tool contracts
 - Retrieval-Augmented Generation (RAG)
@@ -147,6 +171,51 @@ Incoming logs are persisted in PostgreSQL and indexed into OpenSearch. Query end
 - Kubernetes
 - Terraform
 - Cloud deployment
+
+---
+
+## Local AI Runtime
+
+LogSense currently performs AI inference locally rather than relying on a hosted, billable LLM API.
+
+**Runtime**
+- Ollama 0.32.13
+- Ollama API endpoint: `http://localhost:11434`
+- OllamaSharp 5.4.30
+- Microsoft.Extensions.AI via `IChatClient`
+
+**Models**
+- `qwen3:1.7b` — primary development model, selected for faster CPU-only inference
+- `qwen3:4b` — higher-capacity model retained for quality comparison and evaluation
+
+The model is configurable through application configuration, allowing the underlying model/provider to change without coupling `LogAnalysisService` directly to Ollama or Qwen.
+
+```text
+OpenSearch
+    |
+    v
+Relevant bounded log context
+    |
+    v
+LogAnalysisService
+    |
+    v
+Microsoft.Extensions.AI / IChatClient
+    |
+    v
+OllamaSharp
+    |
+    v
+Ollama (localhost)
+    |
+    v
+Qwen3 local model
+    |
+    v
+Structured LogAnalysisResponse
+```
+
+This local setup requires no hosted AI API key and performs model inference on the development machine.
 
 ---
 
@@ -224,15 +293,15 @@ LogSense
 
 ---
 
-## 🚧 Phase 3 – AI Log Analysis
+## ✅ Phase 3 – AI Log Analysis
 
-- [ ] AI-generated log summaries
-- [ ] Incident summarization
-- [ ] Likely root-cause suggestions
-- [ ] Severity assessment
-- [ ] Affected-service identification
-- [ ] Recommended remediation actions
-- [ ] Structured AI analysis responses
+- [x] AI-generated log summaries
+- [x] Incident summarization
+- [x] Likely root-cause suggestions
+- [x] Severity assessment
+- [x] Affected-service identification
+- [x] Recommended remediation actions
+- [x] Structured AI analysis responses
 
 Example:
 
@@ -326,7 +395,7 @@ Example:
 
 A major goal of LogSense is to move beyond simply storing and searching logs.
 
-The planned AI layer will use existing log search capabilities as tools in higher-level workflows. An AI component or agent will be able to retrieve relevant logs, reason over the retrieved context, produce structured incident analysis, and recommend next actions.
+The implemented AI analysis layer retrieves relevant logs through OpenSearch and passes bounded log context to a locally hosted Qwen model through Microsoft.Extensions.AI and Ollama. It produces structured incident analysis and recommended actions. Future agentic phases will expose these capabilities as tools in higher-level investigation workflows.
 
 This allows the project to demonstrate the distinction between:
 
@@ -408,19 +477,28 @@ This project follows modern software engineering practices including:
 - Serilog structured logging
 - Log ingestion and investigation workflows
 
-### AI Engineering – Planned / In Development
+### AI Engineering
 
-- LLM integration
+- Local LLM integration with Ollama
+- Microsoft.Extensions.AI / `IChatClient`
+- OllamaSharp
+- Qwen3 1.7B and Qwen3 4B local models
+- Structured AI outputs
+- AI-assisted incident summarization
+- AI-assisted root-cause analysis
+- Severity assessment and remediation recommendations
+- Provider-abstracted AI architecture
+- Bounded model context and AI failure handling
+
+**Planned / In Development**
 - Microsoft Agent Framework
 - AI-driven workflows
 - Agentic AI
 - Agent-facing API/tool development
-- Structured AI outputs
 - RAG
 - Semantic search
 - Embeddings
 - Natural-language querying
-- AI-assisted root-cause analysis
 
 ### Frontend / Platform – Planned
 
@@ -479,9 +557,14 @@ React / TypeScript investigation UI
 - Dockerized OpenSearch environment
 - OpenSearch indexing
 - Full-text multi-field search
+- Local Ollama LLM integration
+- Microsoft.Extensions.AI / `IChatClient` integration
+- OpenSearch-to-LLM log analysis pipeline
+- Structured AI incident analysis
+- AI error handling and bounded model context
 
 ### Currently Moving Into
 
-**AI log analysis and AI-driven operational workflows.**
+**Semantic retrieval/RAG and AI-driven operational workflows.**
 
 Future phases will extend this foundation with Microsoft agentic tooling, agent-facing APIs, semantic retrieval/RAG, React/TypeScript, observability, testing, and deployment automation.
