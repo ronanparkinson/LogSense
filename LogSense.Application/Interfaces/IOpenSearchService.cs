@@ -11,5 +11,6 @@ namespace LogSense.Application.Interfaces
     {
         Task IndexLogEntryAsync(LogEntry logEntry);
         Task<List<LogEntry>> SearchLogsAsync(string query);
+        Task<List<LogEntry>> SemanticSearchAsync(string query, int resultCount = 5);
     }
 }

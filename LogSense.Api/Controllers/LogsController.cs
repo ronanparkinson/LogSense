@@ -18,12 +18,14 @@ namespace LogSense.Api.Controllers
         private readonly ILogService _logService;
         private readonly ILogAnalysisService _logAnalysisService;
         private readonly ILogEmbeddingService _logEmbeddingService;
+        private readonly IOpenSearchService _openSearchService;
 
-        public LogsController(ILogService logService, ILogAnalysisService logAnalysisService, ILogEmbeddingService logEmbeddingService)
+        public LogsController(ILogService logService, ILogAnalysisService logAnalysisService, ILogEmbeddingService logEmbeddingService, IOpenSearchService openSearchService)
         {
             _logService = logService;
             _logAnalysisService = logAnalysisService;
             _logEmbeddingService = logEmbeddingService;
+            _openSearchService = openSearchService;
         }
 
         [HttpPost]
@@ -103,8 +105,26 @@ namespace LogSense.Api.Controllers
             {
                 Text = text,
                 Dimensions = embedding.Length,
-                Preview = embedding.Take(10)
+                Embedding = embedding
             });
+        }
+
+        [HttpGet("semantic-search")]
+        public async Task<ActionResult<List<LogEntry>>> SemanticSearch(
+    [FromQuery] string query,
+    [FromQuery] int resultCount = 5)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest("Query is required.");
+            }
+
+            var results =
+                await _openSearchService.SemanticSearchAsync(
+                    query,
+                    resultCount);
+
+            return Ok(results);
         }
     }
 }
