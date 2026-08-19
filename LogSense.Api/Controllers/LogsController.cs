@@ -19,13 +19,15 @@ namespace LogSense.Api.Controllers
         private readonly ILogAnalysisService _logAnalysisService;
         private readonly ILogEmbeddingService _logEmbeddingService;
         private readonly IOpenSearchService _openSearchService;
+        private readonly IRagService _ragService;
 
-        public LogsController(ILogService logService, ILogAnalysisService logAnalysisService, ILogEmbeddingService logEmbeddingService, IOpenSearchService openSearchService)
+        public LogsController(ILogService logService, ILogAnalysisService logAnalysisService, ILogEmbeddingService logEmbeddingService, IOpenSearchService openSearchService, IRagService ragService)
         {
             _logService = logService;
             _logAnalysisService = logAnalysisService;
             _logEmbeddingService = logEmbeddingService;
             _openSearchService = openSearchService;
+            _ragService = ragService;
         }
 
         [HttpPost]
@@ -125,6 +127,24 @@ namespace LogSense.Api.Controllers
                     resultCount);
 
             return Ok(results);
+        }
+
+        [HttpGet("investigate")]
+        public async Task<ActionResult<LogAnalysisResponse>> Investigate(
+    [FromQuery] string query,
+    [FromQuery] int resultCount = 2)
+         {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest("Query is required.");
+            }
+
+            var result =
+                await _ragService.InvestigateAsync(
+                    query,
+                    resultCount);
+
+            return Ok(result);
         }
     }
 }

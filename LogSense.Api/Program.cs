@@ -79,6 +79,8 @@ builder.Services.AddScoped<
 
 builder.Services.AddScoped<ILogAnalysisService, LogAnalysisService>();
 
+builder.Services.AddScoped<IRagService, RagService>();
+
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();

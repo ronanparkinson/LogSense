@@ -28,10 +28,9 @@ namespace LogSense.Infrastructure.Services
         public async Task IndexLogEntryAsync(LogEntry logEntry)
         {
             string embeddingText =
-                $"Source: {logEntry.Source}. " +
-                $"Level: {logEntry.Level}. " +
-                $"Message: {logEntry.Message}. " +
-                $"Exception: {logEntry.Exception ?? "None"}.";
+                $"{logEntry.Message}. " +
+                $"{logEntry.Exception ?? string.Empty}. " +
+                $"Service: {logEntry.Source}.";
 
             float[] embedding =
                 await _logEmbeddingService.GenerateEmbeddingAsync(embeddingText);
