@@ -1,5 +1,4 @@
 ﻿using LogSense.Application.DTOs.AI;
-using LogSense.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace LogSense.Application.Interfaces
 {
-    public interface ILogAnalysisService
+    public interface IRagService
     {
-        Task<LogAnalysisResponse> AnalyseLogsAsync(
-            List<LogEntry> logEntries,
-            string? investigationQuery = null);
+        Task<LogAnalysisResponse> InvestigateAsync(
+            string query,
+            int resultCount = 5);
     }
 }

@@ -53,7 +53,10 @@ var ollamaEndpoint =
     builder.Configuration["Ollama:Endpoint"];
 
 var ollamaModel =
-    builder.Configuration["Ollama:Model"];
+    builder.Configuration["Ollama:ChatModel"];
+
+var ollamaEmbeddingModel =
+    builder.Configuration["Ollama:EmbeddingModel"];
 
 IChatClient chatClient = new OllamaApiClient(
     new Uri(ollamaEndpoint!),
@@ -61,7 +64,22 @@ IChatClient chatClient = new OllamaApiClient(
 
 builder.Services.AddSingleton<IChatClient>(chatClient);
 
+IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator =
+    new OllamaApiClient(
+        new Uri(ollamaEndpoint!),
+        ollamaEmbeddingModel!);
+
+builder.Services.AddSingleton<
+    IEmbeddingGenerator<string, Embedding<float>>>(
+        embeddingGenerator);
+
+builder.Services.AddScoped<
+    ILogEmbeddingService,
+    LogEmbeddingService>();
+
 builder.Services.AddScoped<ILogAnalysisService, LogAnalysisService>();
+
+builder.Services.AddScoped<IRagService, RagService>();
 
 var app = builder.Build();
 
